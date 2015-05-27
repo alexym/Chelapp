@@ -13,11 +13,23 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import Utils.Post;
 import Utils.RecycleViewAdapter;
 import Utils.RecyclerItemClickListener;
+import network.VolleySingleton;
 
 
 public class MainActivity extends ActionBarActivity implements SwipeRefreshLayout.OnRefreshListener{
@@ -28,6 +40,12 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
     private final String TAG = "MainActivity";
     SwipeRefreshLayout swipeRefresh;
     List items = new ArrayList<>();
+
+    private RequestQueue requestQueue;
+    JsonObjectRequest jsArrayRequest;
+
+    private static final String URL_BASE = "http://servidorexterno.site90.com/datos";
+    private static final String URL_JSON = "/social_media.json";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +63,7 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
 
 // Crear un nuevo adaptador
         //adapter = new AnimeAdapter(items);
-        adapter = new RecycleViewAdapter(MainActivity.this);
+       // adapter = new RecycleViewAdapter(MainActivity.this);
         recycler.setAdapter(adapter);
 
         recycler.addOnItemTouchListener(new RecyclerItemClickListener(MainActivity.this, recycler, new RecyclerItemClickListener.OnItemClickListener() {
@@ -114,6 +132,78 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                 swipeRefresh.setRefreshing(false);
             }
         }, 8000);
+    }
+
+    public void cargaInfo(){
+/// Get a RequestQueue
+        RequestQueue queue = VolleySingleton.getInstance(this.getApplicationContext()).
+                getRequestQueue();
+
+
+// Add a request (in this example, called stringRequest) to your RequestQueue.
+
+
+        // Nueva petición JSONObject
+
+        jsArrayRequest = new JsonObjectRequest(
+                Request.Method.GET,
+                URL_BASE + URL_JSON,
+                "",
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        items = parseJson(response);
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d(TAG, "Error Respuesta en JSON: " + error.getMessage());
+
+                    }
+                }
+        );
+
+
+
+
+        // Añadir petición a la cola
+        VolleySingleton.getInstance(this).addToRequestQueue(jsArrayRequest);
+    }
+    public List<Post> parseJson(JSONObject jsonObject){
+        // Variables locales
+        List<Post> posts = new ArrayList();
+        JSONArray jsonArray= null;
+
+        try {
+            // Obtener el array del objeto
+            jsonArray = jsonObject.getJSONArray("items");
+
+            for(int i=0; i<jsonArray.length(); i++){
+
+                try {
+                    JSONObject objeto= jsonArray.getJSONObject(i);
+
+                    Post post = new Post(
+                            objeto.getString("titulo"),
+                            objeto.getString("descripcion"),
+                            objeto.getString("imagen"));
+
+
+                    posts.add(post);
+
+                } catch (JSONException e) {
+                    Log.e(TAG, "Error de parsing: "+ e.getMessage());
+                }
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        return posts;
     }
 
 }

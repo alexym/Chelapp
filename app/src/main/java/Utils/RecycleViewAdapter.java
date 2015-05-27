@@ -31,8 +31,7 @@ import java.util.List;
  */
 public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.ViewHolder>  {
     // Atributos
-    private RequestQueue requestQueue;
-    JsonObjectRequest jsArrayRequest;
+
     private static final String URL_BASE = "http://servidorexterno.site90.com/datos";
     private static final String URL_JSON = "/social_media.json";
     private static final String TAG = "PostAdapter";
@@ -40,38 +39,9 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
     public Bitmap imagenTemp;
 
 
-    public RecycleViewAdapter(Context context) {
 
-        // Crear nueva cola de peticiones
-        requestQueue= Volley.newRequestQueue(context);
-
-        // Nueva petición JSONObject
-
-        jsArrayRequest = new JsonObjectRequest(
-                Request.Method.GET,
-                URL_BASE + URL_JSON,
-                "",
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        items = parseJson(response);
-                        notifyDataSetChanged();
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.d(TAG, "Error Respuesta en JSON: " + error.getMessage());
-
-                    }
-                }
-        );
-
-
-
-
-        // Añadir petición a la cola
-        requestQueue.add(jsArrayRequest);
+    public RecycleViewAdapter(List items) {
+        this.items = items;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -116,7 +86,7 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
                 });
         viewHolder.imagen.setImageBitmap(imagenTemp);
         // Añadir petición a la cola
-        requestQueue.add(request);
+        //requestQueue.add(request);
     }
 
     @Override
@@ -124,40 +94,7 @@ public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.
         return items != null ? items.size() : 0;
 
     }
-    public List<Post> parseJson(JSONObject jsonObject){
-        // Variables locales
-        List<Post> posts = new ArrayList();
-        JSONArray jsonArray= null;
 
-        try {
-            // Obtener el array del objeto
-            jsonArray = jsonObject.getJSONArray("items");
-
-            for(int i=0; i<jsonArray.length(); i++){
-
-                try {
-                    JSONObject objeto= jsonArray.getJSONObject(i);
-
-                    Post post = new Post(
-                            objeto.getString("titulo"),
-                            objeto.getString("descripcion"),
-                            objeto.getString("imagen"));
-
-
-                    posts.add(post);
-
-                } catch (JSONException e) {
-                    Log.e(TAG, "Error de parsing: "+ e.getMessage());
-                }
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-
-        return posts;
-    }
 
 
 }

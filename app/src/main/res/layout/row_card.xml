@@ -12,6 +12,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+        <com.android.volley.toolbox.NetworkImageView
+            android:id="@+id/networkImageView"
+            android:layout_width="150dp"
+            android:layout_height="170dp"
+            android:layout_centerHorizontal="true" />
         <ImageView
             android:id="@+id/imagen_view_card"
             android:layout_width="match_parent"
