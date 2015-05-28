@@ -14,15 +14,16 @@
         android:orientation="vertical">
         <com.android.volley.toolbox.NetworkImageView
             android:id="@+id/networkImageView"
-            android:layout_width="150dp"
-            android:layout_height="170dp"
-            android:layout_centerHorizontal="true" />
-        <ImageView
-            android:id="@+id/imagen_view_card"
             android:layout_width="match_parent"
             android:layout_height="150dp"
             android:scaleType="centerCrop"
             android:transitionName="@string/image_card_animation"/>
+     <!--   <ImageView
+            android:id="@+id/imagen_view_card"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:scaleType="centerCrop"
+            android:transitionName="@string/image_card_animation"/>-->
         <TextView
             android:id="@+id/nombre"
             android:layout_width="match_parent"

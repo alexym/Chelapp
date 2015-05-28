@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
@@ -38,11 +39,13 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
     private RecyclerView.Adapter adapter;
     private RecyclerView.LayoutManager lManager;
     private final String TAG = "MainActivity";
-    SwipeRefreshLayout swipeRefresh;
+    private SwipeRefreshLayout swipeRefresh;
     List items = new ArrayList<>();
 
+
+
     private RequestQueue requestQueue;
-    JsonObjectRequest jsArrayRequest;
+    private JsonObjectRequest jsArrayRequest;
 
     private static final String URL_BASE = "http://servidorexterno.site90.com/datos";
     private static final String URL_JSON = "/social_media.json";
@@ -53,7 +56,6 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
         setContentView(R.layout.activity_main);
 
 
-
         // Obtener el Recycler
         recycler = (RecyclerView) findViewById(R.id.reciclador);
         recycler.setHasFixedSize(true);
@@ -61,10 +63,13 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
         StaggeredGridLayoutManager mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL); // (int spanCount, int orientation)
         recycler.setLayoutManager(mLayoutManager);
 
-// Crear un nuevo adaptador
-        //adapter = new AnimeAdapter(items);
-       // adapter = new RecycleViewAdapter(MainActivity.this);
-        recycler.setAdapter(adapter);
+        //Se inicializa singleton para realizar peticion de servicio
+        requestQueue = VolleySingleton.getInstance(this.getApplicationContext()).
+                getRequestQueue();
+
+        cargaInfo();
+        // Crear un nuevo adaptador a partir de la informacion descargada por el metodo "cargaInfo()" regresando un list
+
 
         recycler.addOnItemTouchListener(new RecyclerItemClickListener(MainActivity.this, recycler, new RecyclerItemClickListener.OnItemClickListener() {
             @Override
@@ -88,6 +93,7 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                 // ...
             }
         }));
+        recycler.setItemAnimator(new DefaultItemAnimator());
 
         this.setTitle("ChelApp");
         //Propiedades para el efecto de actualizar listado
@@ -97,6 +103,7 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                 android.R.color.holo_orange_light,
                 android.R.color.holo_green_dark,
                 android.R.color.holo_red_light);
+
     }
 
     @Override
@@ -130,19 +137,13 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
 
 // Finalizar swipeRefresh
                 swipeRefresh.setRefreshing(false);
+                adapter.notifyDataSetChanged();
             }
         }, 8000);
     }
 
+    //public List<Post> cargaInfo(){
     public void cargaInfo(){
-/// Get a RequestQueue
-        RequestQueue queue = VolleySingleton.getInstance(this.getApplicationContext()).
-                getRequestQueue();
-
-
-// Add a request (in this example, called stringRequest) to your RequestQueue.
-
-
         // Nueva petición JSONObject
 
         jsArrayRequest = new JsonObjectRequest(
@@ -153,7 +154,9 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
                     @Override
                     public void onResponse(JSONObject response) {
                         items = parseJson(response);
-
+                        //adapter.notifyDataSetChanged();
+                        adapter = new RecycleViewAdapter(items);
+                        recycler.setAdapter(adapter);
                     }
                 },
                 new Response.ErrorListener() {
@@ -170,6 +173,7 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
 
         // Añadir petición a la cola
         VolleySingleton.getInstance(this).addToRequestQueue(jsArrayRequest);
+        //return items;
     }
     public List<Post> parseJson(JSONObject jsonObject){
         // Variables locales
@@ -184,7 +188,6 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
 
                 try {
                     JSONObject objeto= jsonArray.getJSONObject(i);
-
                     Post post = new Post(
                             objeto.getString("titulo"),
                             objeto.getString("descripcion"),
