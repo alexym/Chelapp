@@ -36,7 +36,7 @@ import network.VolleySingleton;
 public class RecycleViewAdapter extends RecyclerView.Adapter<RecycleViewAdapter.ViewHolder>  {
     // Atributos
 
-    private static final String URL_BASE = "http://servidorexterno.site90.com/datos";
+    public static final String URL_BASE = "http://servidorexterno.site90.com/datos";
     private static final String URL_JSON = "/social_media.json";
     private static final String TAG = "RecyleViewAdapter";
     List<Post> items;

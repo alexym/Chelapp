@@ -1,7 +1,9 @@
 package com.alexym.chelapp;
 
+import android.annotation.TargetApi;
 import android.app.ActivityOptions;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
@@ -32,7 +34,7 @@ import Utils.RecycleViewAdapter;
 import Utils.RecyclerItemClickListener;
 import network.VolleySingleton;
 
-
+@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class MainActivity extends ActionBarActivity implements SwipeRefreshLayout.OnRefreshListener{
 
     private RecyclerView recycler;
@@ -74,17 +76,17 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
         recycler.addOnItemTouchListener(new RecyclerItemClickListener(MainActivity.this, recycler, new RecyclerItemClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                //Log.i(TAG, "Esta es la position: " + String.valueOf(position));
-//                Intent i = new Intent(MainActivity.this, DetailActivity.class);
-//                Anime cardClick=(Anime)items.get(position);
-//                Log.i(TAG, String.valueOf(cardClick.getImagen()));
-//                i.putExtra("imagen",cardClick.getImagen());
-//                View sharedView = view.findViewById(R.id.imagen_view_card);
-//
-//                String transitionName = getString(R.string.image_card_animation);
-//
-//                ActivityOptions transitionActivityOptions = ActivityOptions.makeSceneTransitionAnimation(KawaiiCards.this, sharedView, transitionName);
-//                startActivity(i, transitionActivityOptions.toBundle());
+                Log.i(TAG, "Esta es la position: " + String.valueOf(position));
+                Intent i = new Intent(MainActivity.this, DetailActivity.class);
+                Post cardClick=(Post)items.get(position);
+                Log.i(TAG, String.valueOf(cardClick.getImagen()));
+                i.putExtra("imagen",cardClick.getImagen());
+                View sharedView = view.findViewById(R.id.networkImageView);
+
+                String transitionName = getString(R.string.image_card_animation);
+
+                ActivityOptions transitionActivityOptions = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this, sharedView, transitionName);
+                startActivity(i, transitionActivityOptions.toBundle());
 
             }
 
